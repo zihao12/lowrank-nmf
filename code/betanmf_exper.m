@@ -35,7 +35,7 @@ function [A, B, f1, f2] = betanmf_exper (X,Xhat, A, B, tol, maxiter, verbose)
   f2    = zeros(maxiter + 1,1);
   f2(1) = cost(Xhat,A*B);
   if verbose
-    fprintf('iter obj_Xhat (cost fn)  obj_X (cost fn)     max.diff\n');
+    fprintf('iter obj (cost fn)  	obj_Xhat (cost fn)     max.diff\n');
     fprintf('---- ------------------- ------------------- --------\n');
   end
 
