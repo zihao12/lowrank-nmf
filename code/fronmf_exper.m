@@ -27,7 +27,7 @@ function [A, B, f1, f2] = fronmf (X,Xhat, A, B, tol, maxiter, verbose)
   % Compute the value of the objective function at the initial estimate
   % of the solution.
   f1    = zeros(maxiter + 1,1);
-  f1(1) = cost(X,A*B);
+  f1(1) = costF(X,A*B);
   f2    = zeros(maxiter + 1,1);
   f2(1) = cost(Xhat,A*B);
   if verbose
