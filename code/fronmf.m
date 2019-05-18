@@ -27,7 +27,7 @@ function [A, B, f] = fronmf (X, A, B, tol, maxiter, verbose)
   % Compute the value of the objective function at the initial estimate
   % of the solution.
   f    = zeros(maxiter + 1,1);
-  f(1) = cost(X,A*B);
+  f(1) = costF(X,A*B);
   if verbose
     fprintf('iter objective (cost fn) max.diff\n');
     fprintf('---- ------------------- --------\n');
