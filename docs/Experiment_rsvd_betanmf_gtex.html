@@ -11789,7 +11789,7 @@ div#notebook {
 <ul>
 <li><p>The quality of approximation of original data using first 50 components is shown <a href="https://github.com/zihao12/lowrank-nmf/blob/master/output/gtex_approx_rsvd_d50_scatter.png">https://github.com/zihao12/lowrank-nmf/blob/master/output/gtex_approx_rsvd_d50_scatter.png</a></p>
 </li>
-<li><p>The loss vs niter are shown below. fronmf clearly has an advantage over rsvdfronmf. Also, my experiments on other methods (ccd) have a cost similar to that of betanmf. It seems we are losing information when doing the approximation.</p>
+<li><p>The loss vs niter are shown below. betanmf clearly has an advantage over rsvdbetanmf. Also, my experiments on other methods (ccd) have a cost similar to that of betanmf. It seems we are losing information when doing the approximation.</p>
 </li>
 <li><p>Some factors from the two methods are quite different</p>
 </li>
@@ -11816,8 +11816,8 @@ div#notebook {
 <div class=" highlight hl-r"><pre><span></span>err0 <span class="o">=</span> read.csv<span class="p">(</span><span class="s">&quot;../bigdata/gtex_error_betanmf.csv&quot;</span><span class="p">,</span> header <span class="o">=</span> <span class="bp">F</span><span class="p">)</span> 
 err <span class="o">=</span> read.csv<span class="p">(</span><span class="s">&quot;../bigdata/gtex_error_rsvdbetanmf_d50.csv&quot;</span><span class="p">,</span> header <span class="o">=</span> <span class="bp">F</span><span class="p">)</span>
 
-<span class="kp">cat</span><span class="p">(</span><span class="kp">sprintf</span><span class="p">(</span><span class="s">&quot;min cost for fronmf on X:     %12e\n&quot;</span><span class="p">,</span> <span class="kp">min</span><span class="p">(</span>err0<span class="p">)))</span>
-<span class="kp">cat</span><span class="p">(</span><span class="kp">sprintf</span><span class="p">(</span><span class="s">&quot;min cost for rsvdfronmf on X: %12e\n&quot;</span><span class="p">,</span> <span class="kp">min</span><span class="p">(</span>err<span class="p">[,</span><span class="m">1</span><span class="p">])))</span>
+<span class="kp">cat</span><span class="p">(</span><span class="kp">sprintf</span><span class="p">(</span><span class="s">&quot;min cost for betanmf on X:     %12e\n&quot;</span><span class="p">,</span> <span class="kp">min</span><span class="p">(</span>err0<span class="p">)))</span>
+<span class="kp">cat</span><span class="p">(</span><span class="kp">sprintf</span><span class="p">(</span><span class="s">&quot;min cost for rsvdbetanmf on X: %12e\n&quot;</span><span class="p">,</span> <span class="kp">min</span><span class="p">(</span>err<span class="p">[,</span><span class="m">1</span><span class="p">])))</span>
 
 niter <span class="o">=</span> <span class="kp">nrow</span><span class="p">(</span>err<span class="p">)</span>
 idx <span class="o">=</span> <span class="kp">seq</span><span class="p">(</span><span class="m">1</span><span class="p">,</span>niter<span class="p">,</span> <span class="m">5</span><span class="p">)</span>
@@ -11843,8 +11843,8 @@ legend<span class="p">(</span>x <span class="o">=</span> <span class="m">400</sp
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>min cost for fronmf on X:     -6.426097e+12
-min cost for rsvdfronmf on X: -6.408601e+12
+<pre>min cost for betanmf on X:     -6.426097e+12
+min cost for rsvdbetanmf on X: -6.408601e+12
 </pre>
 </div>
 </div>
