@@ -11775,8 +11775,16 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Null hypothesis is $x \sim Pois(\lambda))$. $resid = \frac{x - \lambda}{\sqrt{\lambda}}$</p>
-<p>Under null distribution, we have $resid \sim N(0,1)$. We compute p-value for that.</p>
+<ul>
+<li><p>Our model is $X_{ij} \sim Poisson(\Lambda_{ij})$ and we recontruct $\Lambda$ in many ways (Investigate betanmf in this case). We want to know whether our model overfits the data by using Pearson test.</p>
+</li>
+<li><p>Null hypothesis is $x \sim Pois(\lambda))$. $resid = \frac{x - \lambda}{\sqrt{\lambda}}$</p>
+</li>
+<li><p>Under null distribution, we have $resid \sim N(0,1)$. We compute p-value for that.</p>
+</li>
+<li><p>I generate data from 5 topics using poisson generator, and compare the residuals and p values</p>
+</li>
+</ul>
 
 </div>
 </div>
