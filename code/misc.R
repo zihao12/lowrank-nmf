@@ -35,3 +35,18 @@ poisson2multinom <- function (F, L) {
 # L is an n x K matrix of "loadings".
 loglik.multinom <- function (X, F, L, e = .Machine$double.eps)
   sum(X * log(tcrossprod(L,F) + e))
+
+
+# do log transform on count data X
+# adopt the approach suggested by Abhishek Sarkar, and implemenetd in edgeR 
+# X is (n_sample, n_feature) count matrix
+# s = sum_j X_ij  (s_i is the sum for sample i)
+# y_ij = ln( x_ij / (s_i/median(s)) + 1)  (edgeR uses mean instead of median)
+# Y is our output
+logtrans <- function(X){
+  s = rowSums(X)
+  w = s / median(s)
+  Y = diag(1/w) %*% X + 1
+  Y = log(Y)
+  return(Y) 
+}
