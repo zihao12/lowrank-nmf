@@ -2,8 +2,8 @@ args <- commandArgs(trailingOnly=TRUE)
 method <- args[1]
 dataname <- args[2]
 
-method = "rough"
-dataname = "test"
+# method = "rough"
+# dataname = "test"
 
 # SCRIPT SETTINGS
 # ---------------
@@ -52,14 +52,17 @@ cat("plot and save.\n")
 out.dir		 <- "../output"
 resid.out.file  <- sprintf("%s_%s_K%d_resid_pearson.png", dataname, method,K)
 pval.out.file <- sprintf("%s_%s_K%d_pval_pearson.png",dataname, method, K)
+pval2.out.file <- sprintf("%s_%s_K%d_pval_poisson.png",dataname, method, K)
 resid.out.file  <- file.path(out.dir,resid.out.file)
 pval.out.file  <- file.path(out.dir,pval.out.file)
+pval2.out.file  <- file.path(out.dir,pval2.out.file)
 
 
 
 ## compute and plot resid and pval 
 main = sprintf("%s on %s with K = %d", method, dataname, K)
 pval_resid_plot_pearson(counts, Lam, resid.out.file, pval.out.file,  main)
+pval_plot_poisson(counts, Lam, pval2.out.file,  main)
 
 # SESSION INFO
 # ------------

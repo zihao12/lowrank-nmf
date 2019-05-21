@@ -60,7 +60,7 @@ logtrans <- function(X){
 pval_resid_plot_pearson <- function(X, Lam,  resid.out.file, pval.out.file, main = " "){
   resids = (X-Lam)/sqrt(Lam)
   resids[is.na(resids)] = 0
-  #resids[is.infinite(resids)] = sqrt(max(X))
+  resids[is.infinite(resids)] = sqrt(max(X))
   png(resid.out.file)
   hist(resids, breaks = 100, main = sprintf("Pearson Residual of %s", main))
 
@@ -69,3 +69,8 @@ pval_resid_plot_pearson <- function(X, Lam,  resid.out.file, pval.out.file, main
   hist(pvals, breaks = 100, main = sprintf("Pearson pvalue of %s", main))
 }
 
+pval_plot_poisson <- function(X, Lam, pval.out.file, main = " "){
+  png(pval.out.file)
+  pvals = ppois(X, Lam)
+  hist(pvals, breaks = 100, main = sprintf("Poisson pvalue of %s", main))
+}
