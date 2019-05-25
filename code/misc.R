@@ -67,10 +67,34 @@ pval_resid_plot_pearson <- function(X, Lam,  resid.out.file, pval.out.file, main
   png(pval.out.file)
   pvals = 2*pnorm(-abs(resids))
   hist(pvals, breaks = 100, main = sprintf("Pearson pvalue of %s", main))
+  dev.off()
 }
 
 pval_plot_poisson <- function(X, Lam, pval.out.file, main = " "){
   png(pval.out.file)
   pvals = ppois(X, Lam)
   hist(pvals, breaks = 100, main = sprintf("Poisson pvalue of %s", main))
+  dev.off()
 }
+
+## compute p values using the formula below
+## c * ppois(x - 1, lam) + (1 - c) * ppois(x, lam), where r is runif
+pval_plot_pois_cts <- function(X,Lam, pval.out.file, main = " "){
+  png(pval.out.file)
+  n = nrow(X)
+  p = ncol(X)
+  C = matrix(runif(n*p), nrow = n)
+  pvals = C * ppois(X-1, Lam) + (1-C) * ppois(X, Lam)
+  hist(pvals, breaks = 100, main = sprintf("Poisson_cts pvalue of %s", main))
+  dev.off()
+}
+
+
+
+
+
+
+
+
+
+
