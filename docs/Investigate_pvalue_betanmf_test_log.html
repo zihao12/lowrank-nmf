@@ -242,9 +242,13 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/zihao12/lowrank-nmf/tree/c21b726e7d8626c2a1a7f417b58cc251dfa5038b" target="_blank">c21b726</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/zihao12/lowrank-nmf/tree/29eb5dc1a91c7a6cd16d9102416cd906260ac5b3" target="_blank">29eb5dc</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
+Ignored files:
+    Ignored:    analysis/figure/
+    Ignored:    docs/figure/
+
 Untracked files:
     Untracked:  analysis/.ipynb_checkpoints/Experiment_rsvd_betanmf_gtex_d200-checkpoint.ipynb
     Untracked:  analysis/.ipynb_checkpoints/Experiment_rsvd_betanmf_gtex_d50-checkpoint.ipynb
@@ -252,7 +256,6 @@ Untracked files:
     Untracked:  analysis/.ipynb_checkpoints/Experiment_rsvd_fronmf_gtex_d50-checkpoint.ipynb
     Untracked:  analysis/.ipynb_checkpoints/pval_plot_gtex-checkpoint.ipynb
     Untracked:  analysis/.ipynb_checkpoints/pval_plot_montoro_droplet-checkpoint.ipynb
-    Untracked:  analysis/index.Rmd
     Untracked:  analysis/notebook.tex
     Untracked:  analysis/summary.ipynb
     Untracked:  bigdata/gtex.csv
@@ -278,6 +281,19 @@ Untracked files:
     Untracked:  bigdata/test_loadings_nmf_hals_f.csv
     Untracked:  bigdata/test_loadings_nmf_hals_f_os10.csv
     Untracked:  bigdata/test_loadings_nmf_kl_os10_approx_nndsvd.csv
+    Untracked:  docs/.nojekyll
+    Untracked:  docs/Experiment_rsvd_betanmf_gtex_d200.ipynb
+    Untracked:  docs/Experiment_rsvd_betanmf_gtex_d50.ipynb
+    Untracked:  docs/Experiment_rsvd_fronmf_gtex_d200.ipynb
+    Untracked:  docs/Experiment_rsvd_fronmf_gtex_d50.ipynb
+    Untracked:  docs/Experiments_rsvd_betanmf.ipynb
+    Untracked:  docs/Investigate_pvalue_betanmf.ipynb
+    Untracked:  docs/Investigate_pvalue_betanmf2.ipynb
+    Untracked:  docs/Investigate_pvalue_pca.ipynb
+    Untracked:  docs/notebook.tex
+    Untracked:  docs/pval_plot_gtex.ipynb
+    Untracked:  docs/pval_plot_montoro_droplet.ipynb
+    Untracked:  docs/summary.ipynb
     Untracked:  output/fit_gtex_betanmf.Rout
     Untracked:  output/fit_gtex_log_nmf_hals_f.pyout
     Untracked:  output/fit_gtex_log_nndsvd_K20.out
@@ -339,6 +355,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/zihao12/lowrank-nmf/70d98f1a4bc9c24ef559f708c64432a8efb3b5e0/docs/Investigate_pvalue_betanmf_test_log.html" target="_blank">70d98f1</a>
+</td>
+<td style="text-align:left;">
+Zihao
+</td>
+<td style="text-align:left;">
+2019-06-24
+</td>
+<td style="text-align:left;">
+test html effect
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -442,7 +475,7 @@ fit = betanmf(counts_log,init$W, init$H, verbose = T, eval_every = 10, numiter =
   20 -1.3628462653e+04 4.40e-01</code></pre>
 <pre class="r"><code>runtime = proc.time() - start
 cat(sprintf(&quot;fit with runtime %f\n&quot;, runtime[[3]]))</code></pre>
-<pre><code>fit with runtime 3.179000</code></pre>
+<pre><code>fit with runtime 3.263000</code></pre>
 </div>
 <div id="transform-back-and-plot-p-value" class="section level2">
 <h2>transform back and plot p value</h2>
