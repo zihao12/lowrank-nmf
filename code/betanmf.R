@@ -10,7 +10,7 @@ cost <- function(X,AB, e){
 }
 
 
-betanmf <- function (X, A, B, numiter = 1000, e = .Machine$double.eps, verbose = TRUE) {
+betanmf <- function (X, A, B, numiter = 1000, e = .Machine$double.eps, verbose = TRUE, eval_every = 1) {
   if (inherits(X,"matrix"))
     X <- as.matrix(X)
   n <- nrow(X)
@@ -46,7 +46,7 @@ betanmf <- function (X, A, B, numiter = 1000, e = .Machine$double.eps, verbose =
     progress[i,"objective"] <- f
     progress[i,"max.diff"]  <- d
     progress[i,"timing"]    <- timing["elapsed"]
-    if (verbose)
+    if (verbose && i %% eval_every ==  0)
       cat(sprintf("%4d %0.10e %0.2e\n",i,f,d))
   }
 
