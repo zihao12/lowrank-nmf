@@ -1,0 +1,22 @@
+name: Experiments on low-rank nmf
+output_dir: ../docs
+include: .nojekyll
+exclude: include
+navbar:
+  title: lowrank-nmf
+  left:
+    - text: Overview
+      href: index.html
+  right:
+    - text: source
+      href: https://github.com/zihao12/lowrank-nmf
+output:
+  workflowr::wflow_html:
+    toc: no
+    theme: readable
+    highlight: textmate
+    lib_dir: site_libs
+    self_contained: no
+    include:
+      before_body: include/header.html
+      after_body: include/footer.html
