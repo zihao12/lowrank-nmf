@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Zihao Wang" />
+
+
+<title>Investigate pval in gtex: nmf applied to log-transformed data</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">lowrank-nmf</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Overview</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/zihao12/lowrank-nmf">source</a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Investigate pval in gtex: nmf applied to log-transformed data</h1>
+<h4 class="author"><em>Zihao Wang</em></h4>
+<h4 class="date"><em>6/24/2019</em></h4>
+
+</div>
+
+
+<p><strong>Last updated:</strong> 2019-06-24</p>
+<strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
+<ul>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>R Markdown file:</strong> up-to-date </summary></p>
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Environment:</strong> empty </summary></p>
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Seed:</strong> <code>set.seed(12345)</code> </summary></p>
+<p>The command <code>set.seed(12345)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Session information:</strong> recorded </summary></p>
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/zihao12/lowrank-nmf/tree/c21b726e7d8626c2a1a7f417b58cc251dfa5038b" target="_blank">c21b726</a> </summary></p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+<pre><code>
+Untracked files:
+    Untracked:  analysis/.ipynb_checkpoints/Experiment_rsvd_betanmf_gtex_d200-checkpoint.ipynb
+    Untracked:  analysis/.ipynb_checkpoints/Experiment_rsvd_betanmf_gtex_d50-checkpoint.ipynb
+    Untracked:  analysis/.ipynb_checkpoints/Experiment_rsvd_fronmf_gtex_d200-checkpoint.ipynb
+    Untracked:  analysis/.ipynb_checkpoints/Experiment_rsvd_fronmf_gtex_d50-checkpoint.ipynb
+    Untracked:  analysis/.ipynb_checkpoints/pval_plot_gtex-checkpoint.ipynb
+    Untracked:  analysis/.ipynb_checkpoints/pval_plot_montoro_droplet-checkpoint.ipynb
+    Untracked:  analysis/index.Rmd
+    Untracked:  analysis/notebook.tex
+    Untracked:  analysis/summary.ipynb
+    Untracked:  bigdata/gtex.csv
+    Untracked:  bigdata/gtex_log.csv
+    Untracked:  bigdata/gtex_log_factors_nmf_hals_f.csv
+    Untracked:  bigdata/gtex_log_factors_nndsvd_K20.csv
+    Untracked:  bigdata/gtex_log_loadings_nmf_hals_f.csv
+    Untracked:  bigdata/gtex_log_loadings_nndsvd_K20.csv
+    Untracked:  bigdata/montoro_droplet.csv
+    Untracked:  bigdata/montoro_droplet.csv.gz
+    Untracked:  bigdata/montoro_droplet_factors_nndsvd_K13.csv
+    Untracked:  bigdata/montoro_droplet_factors_rank1.csv
+    Untracked:  bigdata/montoro_droplet_loadings_nndsvd_K13.csv
+    Untracked:  bigdata/montoro_droplet_loadings_rank1.csv
+    Untracked:  bigdata/montoro_droplet_log.csv
+    Untracked:  bigdata/montoro_droplet_log_factors_nndsvd_K13.csv
+    Untracked:  bigdata/montoro_droplet_log_loadings_nndsvd_K13.csv
+    Untracked:  bigdata/test_factors_nmf_hals_f.csv
+    Untracked:  bigdata/test_factors_rnmf2_hals_f_os10.csv
+    Untracked:  bigdata/test_factors_rnmf_hals_f_os10.csv
+    Untracked:  bigdata/test_factors_rnmf_kl_os10_approx_nndsvd.csv
+    Untracked:  bigdata/test_loadings_nmf2_hals_f_os10.csv
+    Untracked:  bigdata/test_loadings_nmf_hals_f.csv
+    Untracked:  bigdata/test_loadings_nmf_hals_f_os10.csv
+    Untracked:  bigdata/test_loadings_nmf_kl_os10_approx_nndsvd.csv
+    Untracked:  output/fit_gtex_betanmf.Rout
+    Untracked:  output/fit_gtex_log_nmf_hals_f.pyout
+    Untracked:  output/fit_gtex_log_nndsvd_K20.out
+    Untracked:  output/fit_gtex_log_rnmf2_hals_f_os30.Rout
+    Untracked:  output/fit_gtex_log_rnmf2_hals_f_os30.pyout
+    Untracked:  output/fit_gtex_log_rnmf_hals_f_os30.pyout
+    Untracked:  output/fit_gtex_rank1.Rout
+    Untracked:  output/fit_gtex_rnmf_kl_os100_approx_nndsvd.pyout
+    Untracked:  output/fit_gtex_rnmf_kl_os100_approx_rnmf.pyout
+    Untracked:  output/fit_gtex_rough.Rout
+    Untracked:  output/fit_montoro_droplet_betanmf.out
+    Untracked:  output/fit_montoro_droplet_log_nndsvd_K13.out
+    Untracked:  output/fit_montoro_droplet_nndsvd_K13.Rout
+    Untracked:  output/fit_montoro_droplet_nndsvd_K13.out
+    Untracked:  output/fit_montoro_droplet_rank1.Rout
+    Untracked:  output/fit_montoro_droplet_rnmf_kl_os100_approx_nndsvd.pyout
+    Untracked:  output/fit_montoro_droplet_rnmf_kl_os100_approx_rnmf.pyout
+    Untracked:  output/fit_montoro_droplet_rsvd.Rout
+    Untracked:  output/log_transform_gtex.Rout
+    Untracked:  output/log_transform_montoro_droplet.Rout
+    Untracked:  script/.example_rmd.sbatch.swp
+    Untracked:  script/fit_montoro_droplet_betanmf.sbatch
+    Untracked:  script/slurm-60553711.out
+    Untracked:  script/slurm-60575477.out
+    Untracked:  trash/
+
+Unstaged changes:
+    Deleted:    analysis/Experiment_rsvd_betanmf_gtex.ipynb
+    Modified:   analysis/Experiment_rsvd_betanmf_gtex_d200.ipynb
+    Modified:   analysis/Experiment_rsvd_betanmf_gtex_d50.ipynb
+    Deleted:    analysis/Experiment_rsvd_fronmf_gtex.ipynb
+    Modified:   analysis/Experiment_rsvd_fronmf_gtex_d200.ipynb
+    Modified:   analysis/Experiment_rsvd_fronmf_gtex_d50.ipynb
+
+</code></pre>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes. </details>
+</li>
+</ul>
+<details> <summary> <small><strong>Expand here to see past versions:</strong></small> </summary>
+<ul>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+File
+</th>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+<th style="text-align:left;">
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/zihao12/lowrank-nmf/blob/11213178b2cb0e3f86f80bb7d315530b874c96a1/analysis/Investigate_pvalue_betanmf_test_log.Rmd" target="_blank">1121317</a>
+</td>
+<td style="text-align:left;">
+zihao12
+</td>
+<td style="text-align:left;">
+2019-06-24
+</td>
+<td style="text-align:left;">
+rmd for pval
+</td>
+</tr>
+</tbody>
+</table>
+</ul>
+<p></details></p>
+<hr />
+<pre class="r"><code># knitr::opts_chunk$set(echo = TRUE)
+# knitr::opts_knit$set(root.dir = &#39;/tmp&#39;)
+
+#knitr::opts_chunk$set(root.dir = &#39;~/Desktop/git/lowrank-nmf/analysis/&#39;)</code></pre>
+<div id="set-up-environment" class="section level2">
+<h2>set up environment</h2>
+<pre class="r"><code>library(readr)
+library(NNLM)
+library(rsvd)
+source(&quot;../code/betanmf.R&quot;)
+source(&quot;../code/misc.R&quot;)
+
+data.dir = &quot;../bigdata&quot;
+
+log_transform &lt;- function(X){
+  return(log(1+X))
+}
+
+exp_transform &lt;- function(logX){
+  return(exp(logX) -  1)
+}
+
+pvals_cts &lt;- function(X,Lam){
+    set.seed(123)
+    n = nrow(X)
+    p = ncol(X)
+    C = matrix(runif(n*p), nrow = n)
+    pvals = C * ppois(X-1, Lam) + (1-C) * ppois(X, Lam)
+    return(pvals)
+}</code></pre>
+</div>
+<div id="load-and-transform-data" class="section level2">
+<h2>load and transform data</h2>
+<pre class="r"><code>dataname = &quot;test&quot;
+
+dataname = file.path(data.dir,sprintf(&quot;%s.csv&quot;, dataname))
+counts = read.csv.matrix(dataname)
+cat(sprintf(&quot;loaded counts: n = %d; p = %d\n&quot;, nrow(counts), ncol(counts)))</code></pre>
+<pre><code>loaded counts: n = 100; p = 300</code></pre>
+<pre class="r"><code>cat(sprintf(&quot;Proportion of counts that are non-zero: %0.1f%%.\n&quot;,
+            100*mean(counts &gt; 0)))</code></pre>
+<pre><code>Proportion of counts that are non-zero: 100.0%.</code></pre>
+<pre class="r"><code>counts_log = log_transform(counts)
+K = 5</code></pre>
+</div>
+<div id="fit-data-with-nmf" class="section level2">
+<h2>fit data with nmf</h2>
+<pre class="r"><code>cat(sprintf(&quot;number of topics to fit: %d\n&quot;, K))</code></pre>
+<pre><code>number of topics to fit: 5</code></pre>
+<pre class="r"><code>set.seed(123)
+cat(sprintf(&quot;initialization with NNLM::nnmf\n&quot;))</code></pre>
+<pre><code>initialization with NNLM::nnmf</code></pre>
+<pre class="r"><code>init = nnmf(counts_log,K,method = &quot;scd&quot;,loss = &quot;mkl&quot;,rel.tol = 1e-8,
+              n.threads = 0,max.iter = 10,inner.max.iter = 4,trace = 1,
+              verbose = 2)</code></pre>
+<pre><code>
+ Iteration |        MSE |        MKL |     Target |  Rel. Err.
+--------------------------------------------------------------
+         1 |     0.6951 |     0.1124 |     0.1124 |          2
+         2 |     0.1208 |     0.0204 |     0.0204 |          1
+         3 |     0.1190 |     0.0201 |     0.0201 |       0.01
+         4 |     0.1157 |     0.0196 |     0.0196 |       0.03
+         5 |     0.1104 |     0.0188 |     0.0188 |       0.04
+         6 |     0.1053 |     0.0180 |     0.0180 |       0.04
+         7 |     0.1012 |     0.0174 |     0.0174 |       0.04
+         8 |     0.0975 |     0.0168 |     0.0168 |       0.03
+         9 |     0.0941 |     0.0163 |     0.0163 |       0.03
+        10 |     0.0909 |     0.0158 |     0.0158 |       0.03
+--------------------------------------------------------------
+ Iteration |        MSE |        MKL |     Target |  Rel. Err.</code></pre>
+<pre><code>Warning in system.time(out &lt;- .Call(&quot;NNLM_nnmf&quot;, A, as.integer(k),
+init.mask$Wi, : Target tolerance not reached. Try a larger max.iter.</code></pre>
+<pre class="r"><code>cat(sprintf(&quot;fit with betanmf\n&quot;))</code></pre>
+<pre><code>fit with betanmf</code></pre>
+<pre class="r"><code>start = proc.time()
+fit = betanmf(counts_log,init$W, init$H, verbose = T, eval_every = 10, numiter = 20)</code></pre>
+<pre><code>iter         objective max.diff
+  10 -1.3623444033e+04 6.26e-01
+  20 -1.3628462653e+04 4.40e-01</code></pre>
+<pre class="r"><code>runtime = proc.time() - start
+cat(sprintf(&quot;fit with runtime %f\n&quot;, runtime[[3]]))</code></pre>
+<pre><code>fit with runtime 3.179000</code></pre>
+</div>
+<div id="transform-back-and-plot-p-value" class="section level2">
+<h2>transform back and plot p value</h2>
+<pre class="r"><code>Lamhat = fit$A %*% fit$B
+Lam = exp_transform(Lamhat)
+pval = pvals_cts(counts, Lam)
+hist(pval, main = &quot;p value of fit&quot;)</code></pre>
+<p><img src="figure/Investigate_pvalue_betanmf_test_log.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="see-what-are-those-big-p-values" class="section level3">
+<h3>see what are those big p values</h3>
+<pre class="r"><code>threshold = 0.999
+pval_bin = pval &gt; threshold
+cat(sprintf(&quot;percentage of those have p value &gt; %.3f: %f&quot;,threshold, sum(pval_bin)/(nrow(pval)*ncol(pval))))</code></pre>
+<pre><code>percentage of those have p value &gt; 0.999: 0.031467</code></pre>
+<pre class="r"><code>hist(colSums(pval_bin), breaks = 100, xlab = sprintf(&quot;# of pval &gt; %f in a gene&quot;, threshold), 
+     main = sprintf(&quot;number of p values &gt; %f in a gene&quot;, threshold))</code></pre>
+<p><img src="figure/Investigate_pvalue_betanmf_test_log.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>hist(rowSums(pval_bin), breaks = 100, xlab = sprintf(&quot;# of pval &gt; %f in a sample&quot;, threshold), 
+     main = sprintf(&quot;number of p values &gt; %f in a sample&quot;, threshold))</code></pre>
+<p><img src="figure/Investigate_pvalue_betanmf_test_log.Rmd/unnamed-chunk-5-2.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="find-eigenvalue-of-binary-matrix" class="section level3">
+<h3>Find eigenvalue of binary matrix</h3>
+<pre class="r"><code>set.seed(12345)
+svd_out = rsvd(pval_bin,k = 50)
+plot(svd_out$d, xlab = &quot;rank of pc&quot;, ylab = &quot;d&quot;, 
+     main = sprintf(&quot; eigenvalues of pval_binary matrix for pvalue &gt; %.3f&quot;, threshold))</code></pre>
+<p><img src="figure/Investigate_pvalue_betanmf_test_log.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>print(&quot;see the scale of the eigenvalues&quot;)</code></pre>
+<pre><code>[1] &quot;see the scale of the eigenvalues&quot;</code></pre>
+<pre class="r"><code>svd_out$d</code></pre>
+<pre><code> [1] 10.175752  8.986830  8.390362  7.430010  7.008577  5.933549  5.333955
+ [8]  5.190554  4.708257  4.514692  4.362411  4.189893  4.037034  3.997365
+[15]  3.855761  3.770799  3.652562  3.603025  3.570370  3.489790  3.463185
+[22]  3.347916  3.252077  3.217274  3.190246  3.130599  3.061595  2.995001
+[29]  2.937909  2.873371  2.835041  2.781869  2.760690  2.688162  2.666396
+[36]  2.611722  2.493820  2.457663  2.425151  2.406372  2.304945  2.287352
+[43]  2.242707  2.189628  2.145176  2.119692  2.089959  2.054292  2.012099
+[50]  1.948674</code></pre>
+</div>
+</div>
+<div id="session-information" class="section level2">
+<h2>Session information</h2>
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.1 (2018-07-02)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Scientific Linux 7.4 (Nitrogen)
+
+Matrix products: default
+BLAS/LAPACK: /software/openblas-0.2.19-el7-x86_64/lib/libopenblas_haswellp-r0.2.19.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] rsvd_1.0.0      NNLM_0.4.2      readr_1.3.1     workflowr_1.1.1
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.0        knitr_1.20        whisker_0.3-2    
+ [4] magrittr_1.5      hms_0.4.2         lattice_0.20-38  
+ [7] R6_2.3.0          rlang_0.3.1.9000  stringr_1.3.1    
+[10] tools_3.5.1       grid_3.5.1        R.oo_1.22.0      
+[13] git2r_0.23.0      htmltools_0.3.6   yaml_2.2.0       
+[16] rprojroot_1.3-2   digest_0.6.18     tibble_2.0.1     
+[19] crayon_1.3.4      Matrix_1.2-15     R.utils_2.7.0    
+[22] evaluate_0.12     rmarkdown_1.10    stringi_1.2.4    
+[25] compiler_3.5.1    pillar_1.3.1      backports_1.1.2  
+[28] R.methodsS3_1.7.1 pkgconfig_2.0.2  </code></pre>
+</div>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+<hr>
+<p>
+  This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a>
+  analysis was created with
+  <a href="https://github.com/jdblischak/workflowr">workflowr</a> 1.1.1
+</p>
+<hr>
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
