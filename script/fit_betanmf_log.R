@@ -34,30 +34,44 @@ counts <- read.csv.matrix(read.counts.file)
 counts_log <- logtrans_add1(counts)
 cat(sprintf("Loaded and transformed %d x %d count matrix.\n",nrow(counts_log),ncol(counts_log)))
 
-# LOAD INITIAL ESTIMATES
-# ----------------------
-cat("Initial estimates of factors and loadings using NNMF.\n")
-set.seed(123)
-init = nnmf(counts_log,K,method = "scd",loss = "mkl",rel.tol = 1e-8,
-              n.threads = 0,max.iter = 10,inner.max.iter = 4,trace = 1,
-              verbose = 2)
+### WON'T WORK: NA PRODUCED WITH USING MU
 
-# RUN NMF OPTIMIZATION METHOD
-# ---------------------------
-cat("Fitting Poisson topic model.\n")
-timing <- system.time(
-	fit <- betanmf(counts, init$W, init$H, numiter=20, verbose = T, eval_every = 5)
-)
-cat(sprintf("Computation took %0.2f seconds.\n",timing["elapsed"]))
+# # LOAD INITIAL ESTIMATES
+# # ----------------------
+# cat("Initial estimates of factors and loadings using NNMF.\n")
+# set.seed(123)
+# init = nnmf(counts_log,K,method = "scd",loss = "mkl",rel.tol = 1e-8,
+#               n.threads = 0,max.iter = 10,inner.max.iter = 4,trace = 1,
+#               verbose = 2)
 
-#cat("Compute loglikelihood\n")
-F <- t(fit$B)
-L <- fit$A
+# # RUN NMF OPTIMIZATION METHOD
+# # ---------------------------
+# cat("Fitting Poisson topic model.\n")
+# timing <- system.time(
+# 	fit <- betanmf(counts_log, init$W, init$H, numiter=20, verbose = T, eval_every = 5)
+# )
+# cat(sprintf("Computation took %0.2f seconds.\n",timing["elapsed"]))
+
+# #cat("Compute loglikelihood\n")
+# F <- t(fit$B)
+# L <- fit$A
 
 #out <- compute_ll(t(counts),F,t(L))
 # cat(sprintf("method type: %s\n
 #         poisson_ll :%0.12f\n
 #         multinom_ll:%0.12f\n",out$type, out$pois_ll,out$multinom_ll))
+
+# LOAD INITIAL ESTIMATES
+# ----------------------
+cat("Fitting Poisson topic model. using nnmf with scd\n")
+set.seed(123)
+fit = nnmf(counts_log,K,method = "scd",loss = "mkl",rel.tol = 1e-8,
+              n.threads = 0,max.iter = 5,inner.max.iter = 4,trace = 1,
+              verbose = 2)
+#cat("Compute loglikelihood\n")
+F <- t(fit$W)
+L <- fit$H
+
 
 
 # WRITE NNMF RESULTS TO FILE

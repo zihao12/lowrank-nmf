@@ -23,10 +23,11 @@ betanmf <- function (X, A, B, numiter = 1000, e = .Machine$double.eps, verbose =
   if (verbose)
     cat("iter         objective max.diff\n")
 
-  ## NA when we fit log transformed data (initialized with nnmf scd)
-  ## TODO: fix this
-  A <- pmax(A,e)
-  B <- pmax(A,e)
+  # ## NA when we fit log transformed data (montoro_droplet)(initialized with nnmf scd)
+  # ## TODO: fix this
+  # A <- pmax(A,e)
+  # B <- pmax(A,e)
+  ## EVEN THIS STILL CANNOT STOP THE ISSUE!!!
 
   for (i in 1:numiter) {
 
