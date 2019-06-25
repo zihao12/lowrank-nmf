@@ -4,9 +4,15 @@ author: "Zihao Wang"
 date: "6/24/2019"
 output: html_document
 params:
-  dataname: "gtex"
+  dataname: "montoro_droplet"
   K: 5
 ---
+
+## Goal
+* Previously I plotted the p value of fit on GTEx and montoro_droplet dataset. The result is strange for GTEx, with almost all of the p values very close to 1. 
+
+* Here I fit NMF on log-transformed data: $Y = log(X + 1)$ with $X$ the original count. Then $Y \approx W H$. The fit is then $\Lambda  = \exp(WH) - 1$. Then I plot the p values for $X \sim Pois(\Lambda)$ 
+
 
 ## set up environment
 ```{r setup}
@@ -24,10 +30,10 @@ source("../code/betanmf.R")
 source("../code/misc.R")
 
 data.dir = "../bigdata"
-#dataname = "montoro_droplet"
+out.dir = "../bigdata"
 
-
-
+factor.out.file = sprintf("%s_log_factors_betanmf_K%d.csv", dataname,K)
+loading.out.file = sprintf("%s_log_loadings_betanmf_K%d.csv", dataname,K)
 
 log_transform <- function(X){
   return(log(1+X))
@@ -48,7 +54,7 @@ pvals_cts <- function(X,Lam){
 ```
 
 ## load and transform data
-```{r}
+```{r load and transform data}
 dataname = file.path(data.dir,sprintf("%s.csv", dataname))
 counts = read.csv.matrix(dataname)
 cat(sprintf("loaded counts: n = %d; p = %d\n", nrow(counts), ncol(counts)))
@@ -60,30 +66,42 @@ counts_log = log_transform(counts)
 
 
 ## fit data with nmf
-```{r}
+```{r fit data with nmf}
 cat(sprintf("number of topics to fit: %d\n", K))
 set.seed(123)
 cat(sprintf("initialization with NNLM::nnmf\n"))
 init = nnmf(counts_log,K,method = "scd",loss = "mkl",rel.tol = 1e-8,
-              n.threads = 0,max.iter = 10,inner.max.iter = 4,trace = 1,
+              n.threads = 0,max.iter = 2,inner.max.iter = 4,trace = 1,
               verbose = 2)
 cat(sprintf("fit with betanmf\n"))
 start = proc.time()
-fit = betanmf(counts_log,init$W, init$H, verbose = T, eval_every = 10, numiter = 20)
+fit = betanmf(counts_log,init$W, init$H, verbose = T, eval_every = 10, numiter = 1)
 runtime = proc.time() - start
 cat(sprintf("fit with runtime %f\n", runtime[[3]]))
 ```
 
+```{r save fitted model}
+F = t(fit$B)
+L = fit$A
+factor.out.file = file.path(out.dir,factor.out.file)
+loading.out.file = file.path(out.dir,loading.out.file)
+write_csv(as.data.frame(F),factor.out.file,col_names = FALSE)
+write_csv(as.data.frame(L),loading.out.file,col_names = FALSE)
+```
+
+
+
+
 ## transform back and plot p value
-```{r}
+```{r transform fit and plot pval}
 Lamhat = fit$A %*% fit$B
 Lam = exp_transform(Lamhat)
 pval = pvals_cts(counts, Lam)
-hist(pval, main = "p value of fit")
+hist(pval,breaks = 100, main = "p value of fit")
 ```
 
 ### see what are those big p values
-```{r}
+```{r see what those big pvals are}
 threshold = 0.999
 pval_bin = pval > threshold
 cat(sprintf("percentage of those have p value > %.3f: %f",threshold, sum(pval_bin)/(nrow(pval)*ncol(pval))))
@@ -97,7 +115,7 @@ hist(rowSums(pval_bin), breaks = 100, xlab = sprintf("# of pval > %f in a sample
 
 
 ### Find eigenvalue of binary matrix
-```{r}
+```{r find eigenvalues of binary matrix}
 set.seed(12345)
 svd_out = rsvd(pval_bin,k = 50)
 plot(svd_out$d, xlab = "rank of pc", ylab = "d", 
