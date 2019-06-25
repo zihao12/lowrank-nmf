@@ -37,6 +37,12 @@ loglik.multinom <- function (X, F, L, e = .Machine$double.eps)
   sum(X * log(tcrossprod(L,F) + e))
 
 
+## Y = log(X + 1)
+logtrans_add1 <- function(X){
+  return(log(X+1))
+}
+
+
 # do log transform on count data X
 # adopt the approach suggested by Abhishek Sarkar, and implemenetd in edgeR 
 # X is (n_sample, n_feature) count matrix

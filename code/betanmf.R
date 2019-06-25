@@ -16,7 +16,7 @@ betanmf <- function (X, A, B, numiter = 1000, e = .Machine$double.eps, verbose =
   n <- nrow(X)
   m <- ncol(X)
   E <- matrix(1,n,m)
-  progress <- data.frame(iter = 1:numiter,objective = 0,
+  progress <- data.frame(iter = 1:as.integer(numiter/eval_every),objective = 0,
                          max.diff = 0,timing = 0)
       
   # Repeat until we reach the number of requested iterations.
@@ -41,13 +41,20 @@ betanmf <- function (X, A, B, numiter = 1000, e = .Machine$double.eps, verbose =
 
     # Compute the value of the objective (cost) function at the
     # current estimates of the factors and loadings.
-    f <- cost(X,A %*% B,e)
-    d <- max(max(abs(A - A0)),max(abs(B - B0)))
-    progress[i,"objective"] <- f
-    progress[i,"max.diff"]  <- d
-    progress[i,"timing"]    <- timing["elapsed"]
-    if (verbose && i %% eval_every ==  0)
+    # f <- cost(X,A %*% B,e)
+    # d <- max(max(abs(A - A0)),max(abs(B - B0)))
+    # progress[i,"objective"] <- f
+    # progress[i,"max.diff"]  <- d
+    # progress[i,"timing"]    <- timing["elapsed"]
+    if (verbose && i %% eval_every ==  0){
+      idx = i / eval_every
+      f <- cost(X,A %*% B,e)
+      d <- max(max(abs(A - A0)),max(abs(B - B0)))
+      progress[idx,"objective"] <- f
+      progress[idx,"max.diff"]  <- d
+      progress[idx,"timing"]    <- timing["elapsed"]
       cat(sprintf("%4d %0.10e %0.2e\n",i,f,d))
+    }
   }
 
   return(list(A = A,B = B,value = f,progress = progress))

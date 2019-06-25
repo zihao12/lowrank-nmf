@@ -1,0 +1,107 @@
+---
+title: 'Investigate pval in montoro_droplet: nmf applied to log-transformed data'
+author: "Zihao Wang"
+date: "6/24/2019"
+output: html_document
+params:
+  dataname: "test"
+  K: 5
+  log  : TRUE
+---
+
+## Goal
+* Previously I plotted the p value of fit on GTEx and montoro_droplet dataset. The result is strange for GTEx, with almost all of the p values very close to 1. 
+
+* Here I fit NMF on log-transformed data: $Y = log(X + 1)$ with $X$ the original count. Then $Y \approx W H$. The fit is then $\Lambda  = \exp(WH) - 1$. Then I plot the p values for $X \sim Pois(\Lambda)$ 
+
+
+## set up environment
+```{r setup}
+dataname = params$dataname
+K = params$K
+is_log = params$log
+
+cat(sprintf("setting:\n"))
+cat(sprintf("dataset: %s; K : %d; fit_with_log?: %d\n", dataname,K,is_log))
+
+library(readr)
+library(rsvd)
+source("../code/betanmf.R")
+source("../code/misc.R")
+
+data.dir = "../bigdata"
+
+factor.out.file = sprintf("%s_log_factors_betanmf_K%d.csv", dataname,K)
+loading.out.file = sprintf("%s_log_loadings_betanmf_K%d.csv", dataname,K)
+
+exp_transform <- function(logX){
+  return(exp(logX) -  1)
+}
+
+pvals_cts <- function(X,Lam){
+    set.seed(123)
+    n = nrow(X)
+    p = ncol(X)
+    C = matrix(runif(n*p), nrow = n)
+    pvals = C * ppois(X-1, Lam) + (1-C) * ppois(X, Lam)
+    return(pvals)
+}
+```
+
+## load  data
+```{r load data}
+dataname = file.path(data.dir,sprintf("%s.csv", dataname))
+counts = read.csv.matrix(dataname)
+cat(sprintf("loaded counts: n = %d; p = %d\n", nrow(counts), ncol(counts)))
+cat(sprintf("Proportion of counts that are non-zero: %0.1f%%.\n",
+            100*mean(counts > 0)))
+```
+
+
+## load and compute fitted model
+```{r load and compute fitted model}
+factor.out.file  <- file.path(data.dir,factor.out.file)
+loading.out.file <- file.path(data.dir,loading.out.file)
+F0                 <- read.csv.matrix(factor.out.file)
+L0                 <- read.csv.matrix(loading.out.file)
+
+Lam = L0 %*% t(F0)
+
+if(is_log){Lam = exp_transform(Lam)}
+```
+
+
+## plot p value
+```{r transform fit and plot pval}
+pval = pvals_cts(counts, Lam)
+hist(pval,breaks = 100, main = "p value of fit")
+```
+
+### see what are those big p values
+```{r see what those big pvals are}
+threshold = 0.999
+pval_bin = pval > threshold
+cat(sprintf("percentage of those have p value > %.3f: %f",threshold, sum(pval_bin)/(nrow(pval)*ncol(pval))))
+hist(colSums(pval_bin), breaks = 100, xlab = sprintf("# of pval > %f in a gene", threshold), 
+     main = sprintf("number of p values > %f in a gene", threshold))
+
+hist(rowSums(pval_bin), breaks = 100, xlab = sprintf("# of pval > %f in a sample", threshold), 
+     main = sprintf("number of p values > %f in a sample", threshold))
+
+```
+
+
+### Find eigenvalue of binary matrix
+```{r find eigenvalues of binary matrix}
+set.seed(12345)
+svd_out = rsvd(pval_bin,k = 50)
+plot(svd_out$d, xlab = "rank of pc", ylab = "d", 
+     main = sprintf(" eigenvalues of pval_binary matrix for pvalue > %.3f", threshold))
+
+print("see the scale of the eigenvalues")
+svd_out$d
+```
+
+
+
+
