@@ -22,6 +22,12 @@ betanmf <- function (X, A, B, numiter = 1000, e = .Machine$double.eps, verbose =
   # Repeat until we reach the number of requested iterations.
   if (verbose)
     cat("iter         objective max.diff\n")
+
+  ## NA when we fit log transformed data (initialized with nnmf scd)
+  ## TODO: fix this
+  A <- pmax(A,e)
+  B <- pmax(A,e)
+
   for (i in 1:numiter) {
 
     # Save the current estimates of the factors and loadings.
